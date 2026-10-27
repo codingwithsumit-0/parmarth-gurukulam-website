@@ -1,184 +1,125 @@
-/* =========================================
-   PARMARTH GURUKULAM
-   Website JavaScript
-========================================= */
+document.addEventListener("DOMContentLoaded", () => {
+  // Footer में अपने आप वर्तमान वर्ष दिखाना
+  const year = document.getElementById("year");
 
-document.addEventListener("DOMContentLoaded", function () {
-  // Mobile Navigation
+  if (year) {
+    year.textContent = new Date().getFullYear();
+  }
+
+  // मोबाइल मेन्यू
   const menuToggle = document.getElementById("menuToggle");
-  const mainNav = document.getElementById("mainNav");
+  const navMenu = document.getElementById("navMenu");
 
-  if (menuToggle && mainNav) {
-    menuToggle.addEventListener("click", function () {
-      const isOpen = mainNav.classList.toggle("active");
+  if (menuToggle && navMenu) {
+    menuToggle.addEventListener("click", () => {
+      const isOpen = navMenu.classList.toggle("open");
 
       menuToggle.setAttribute("aria-expanded", String(isOpen));
       menuToggle.setAttribute(
         "aria-label",
         isOpen ? "मेन्यू बंद करें" : "मेन्यू खोलें"
       );
+      menuToggle.textContent = isOpen ? "✕" : "☰";
     });
 
-    // Close menu after clicking a navigation link
-    mainNav.querySelectorAll("a").forEach(function (link) {
-      link.addEventListener("click", function () {
-        mainNav.classList.remove("active");
+    // किसी सेक्शन पर क्लिक करने के बाद मेन्यू बंद करें
+    navMenu.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => {
+        navMenu.classList.remove("open");
         menuToggle.setAttribute("aria-expanded", "false");
         menuToggle.setAttribute("aria-label", "मेन्यू खोलें");
+        menuToggle.textContent = "☰";
       });
     });
-
-    // Close menu when Escape is pressed
-    document.addEventListener("keydown", function (event) {
-      if (event.key === "Escape") {
-        mainNav.classList.remove("active");
-        menuToggle.setAttribute("aria-expanded", "false");
-        menuToggle.setAttribute("aria-label", "मेन्यू खोलें");
-      }
-    });
   }
 
-  // Automatically update copyright year
-  const yearElement = document.getElementById("currentYear");
+  // फोटो गैलरी
+  const galleryButtons = Array.from(
+    document.querySelectorAll(".galleryitem")
+  );
 
-  if (yearElement) {
-    yearElement.textContent = new Date().getFullYear();
-  }
-
-  // Gallery Lightbox
-  const galleryItems = document.querySelectorAll(".gallery-item");
   const lightbox = document.getElementById("lightbox");
-  const lightboxImage = document.getElementById("lightboxImage");
-  const closeButton = document.getElementById("lightboxClose");
-  const previousButton = document.getElementById("lightboxPrev");
-  const nextButton = document.getElementById("lightboxNext");
+  const bigImage = document.getElementById("bigImage");
+  const closeBox = document.getElementById("closeBox");
+  const prevBox = document.getElementById("prevBox");
+  const nextBox = document.getElementById("nextBox");
 
-  let currentImageIndex = 0;
+  let currentIndex = 0;
 
   function showImage(index) {
-    if (!galleryItems.length || !lightboxImage) return;
+    if (!galleryButtons.length || !bigImage) return;
 
-    currentImageIndex =
-      (index + galleryItems.length) % galleryItems.length;
+    currentIndex =
+      (index + galleryButtons.length) % galleryButtons.length;
 
-    const item = galleryItems[currentImageIndex];
-    const image = item.querySelector("img");
+    const image = galleryButtons[currentIndex].querySelector("img");
 
     if (!image) return;
 
-    lightboxImage.src = image.src;
-    lightboxImage.alt = image.alt || "परमार्थ गुरुकुलम गैलरी फोटो";
+    bigImage.src = image.src;
+    bigImage.alt = image.alt || "गुरुकुलम की तस्वीर";
   }
 
   function openLightbox(index) {
-    if (!lightbox || !galleryItems.length) return;
+    if (!lightbox) return;
 
     showImage(index);
-    lightbox.classList.add("active");
+    lightbox.classList.add("open");
     lightbox.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
 
-    if (closeButton) closeButton.focus();
+    if (closeBox) closeBox.focus();
   }
 
   function closeLightbox() {
     if (!lightbox) return;
 
-    lightbox.classList.remove("active");
+    lightbox.classList.remove("open");
     lightbox.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
   }
 
-  galleryItems.forEach(function (item, index) {
-    item.addEventListener("click", function () {
+  galleryButtons.forEach((button, index) => {
+    button.addEventListener("click", () => {
       openLightbox(index);
     });
   });
 
-  if (closeButton) {
-    closeButton.addEventListener("click", closeLightbox);
+  if (closeBox) {
+    closeBox.addEventListener("click", closeLightbox);
   }
 
-  if (previousButton) {
-    previousButton.addEventListener("click", function () {
-      showImage(currentImageIndex - 1);
+  if (prevBox) {
+    prevBox.addEventListener("click", () => {
+      showImage(currentIndex - 1);
     });
   }
 
-  if (nextButton) {
-    nextButton.addEventListener("click", function () {
-      showImage(currentImageIndex + 1);
+  if (nextBox) {
+    nextBox.addEventListener("click", () => {
+      showImage(currentIndex + 1);
     });
   }
 
+  // फोटो के बाहर क्लिक करने पर बंद करें
   if (lightbox) {
-    lightbox.addEventListener("click", function (event) {
+    lightbox.addEventListener("click", (event) => {
       if (event.target === lightbox) {
         closeLightbox();
       }
     });
   }
 
-  // Gallery keyboard controls
-  document.addEventListener("keydown", function (event) {
-    if (!lightbox || !lightbox.classList.contains("active")) return;
+  // कीबोर्ड से फोटो बदलना और बंद करना
+  document.addEventListener("keydown", (event) => {
+    if (!lightbox || !lightbox.classList.contains("open")) return;
 
     if (event.key === "Escape") {
       closeLightbox();
-    }
-
-    if (event.key === "ArrowLeft") {
-      showImage(currentImageIndex - 1);
-    }
-
-    if (event.key === "ArrowRight") {
-      showImage(currentImageIndex + 1);
+    } else if (event.key === "ArrowRight") {
+      showImage(currentIndex + 1);
+    } else if (event.key === "ArrowLeft") {
+      showImage(currentIndex - 1);
     }
   });
-
-  // Smooth scrolling for internal links
-  document.querySelectorAll('a[href^="#"]').forEach(function (link) {
-    link.addEventListener("click", function (event) {
-      const targetId = link.getAttribute("href");
-
-      if (!targetId || targetId === "#") return;
-
-      const target = document.querySelector(targetId);
-
-      if (target) {
-        event.preventDefault();
-
-        target.scrollIntoView({
-          behavior: "smooth",
-          block: "start"
-        });
-      }
-    });
-  });
-
-  // Reveal elements when they enter the viewport
-  const revealElements = document.querySelectorAll(
-    ".about-grid, .education-card, .acharya-grid, .gallery-item, .contact-item"
-  );
-
-  if ("IntersectionObserver" in window) {
-    const observer = new IntersectionObserver(
-      function (entries, currentObserver) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            currentObserver.unobserve(entry.target);
-          }
-        });
-      },
-      {
-        threshold: 0.12
-      }
-    );
-
-    revealElements.forEach(function (element) {
-      element.classList.add("reveal");
-      observer.observe(element);
-    });
-  }
 });
